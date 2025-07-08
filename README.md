@@ -1,6 +1,6 @@
 # Air Quality Monitoring over CoAP and Thread Mesh using Zephyr RTOS
 
-This project was developed as part of my coursework for the *Smart Sensors and Networked Systems* module in the M.Sc. program in High Integrity Systems. The objective was to integrate multiple embedded systems concepts — including sensor interfacing, real-time constraints, low-power mesh networking, and protocol-level communication — using Zephyr RTOS and OpenThread.
+This project was developed as part of my coursework for the *Smart Sensors and Networked Systems* module in the M.Sc. program in High Integrity Systems. The objective was to integrate multiple embedded systems concepts including sensor interfacing, real-time constraints, low-power mesh networking, and protocol-level communication using Zephyr RTOS and OpenThread.
 
 ## Project Overview
 

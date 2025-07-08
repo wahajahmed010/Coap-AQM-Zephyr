@@ -74,7 +74,7 @@ static void storedata_cb(void *context, otMessage *msg, const otMessageInfo *msg
 	text_buf[text_len] = '\0';
 
 	// LOG_INF("PUT /storedata : \"%s\"", text_buf);
-	printk("Received: %s\n", text_buf);
+	printk("%s", text_buf);
 
 	if (otCoapMessageGetType(msg) == OT_COAP_TYPE_CONFIRMABLE) {
 		storedata_reply(msg, msg_info);

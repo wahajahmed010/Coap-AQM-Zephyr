@@ -13,15 +13,18 @@
 #include <openthread/coap.h>
 #include <string.h>
 
-static void coap_init(void) {
+static void coap_init(void)
+{
     otInstance *inst = openthread_get_default_instance();
     otError err = otCoapStart(inst, OT_DEFAULT_COAP_PORT);
-    if (err != OT_ERROR_NONE) {
+    if (err != OT_ERROR_NONE)
+    {
         printk("Failed to start CoAP: %d\n", err);
     }
 }
 
-static void coap_send_data_request(const char *payload) {
+static void coap_send_data_request(const char *payload)
+{
     otInstance *inst = openthread_get_default_instance();
     otError error = OT_ERROR_NONE;
     otMessage *msg = NULL;
@@ -29,25 +32,31 @@ static void coap_send_data_request(const char *payload) {
     const otMeshLocalPrefix *prefix = otThreadGetMeshLocalPrefix(inst);
     uint8_t dst_suffix[8] = {0, 0, 0, 0, 0, 0, 0, 1};
 
-    do {
+    do
+    {
         msg = otCoapNewMessage(inst, NULL);
-        if (!msg) {
+        if (!msg)
+        {
             printk("Failed to allocate CoAP message\n");
             return;
         }
 
         otCoapMessageInit(msg, OT_COAP_TYPE_CONFIRMABLE, OT_COAP_CODE_PUT);
         error = otCoapMessageAppendUriPathOptions(msg, "storedata");
-        if (error != OT_ERROR_NONE) break;
+        if (error != OT_ERROR_NONE)
+            break;
 
         error = otCoapMessageAppendContentFormatOption(msg, OT_COAP_OPTION_CONTENT_FORMAT_JSON);
-        if (error != OT_ERROR_NONE) break;
+        if (error != OT_ERROR_NONE)
+            break;
 
         error = otCoapMessageSetPayloadMarker(msg);
-        if (error != OT_ERROR_NONE) break;
+        if (error != OT_ERROR_NONE)
+            break;
 
-        error = otMessageAppend(msg, (const void*)payload, strlen(payload));
-        if (error != OT_ERROR_NONE) break;
+        error = otMessageAppend(msg, (const void *)payload, strlen(payload));
+        if (error != OT_ERROR_NONE)
+            break;
 
         memset(&msg_info, 0, sizeof(msg_info));
         memcpy(&msg_info.mPeerAddr.mFields.m8[0], prefix, 8);
@@ -57,10 +66,14 @@ static void coap_send_data_request(const char *payload) {
         error = otCoapSendRequest(inst, msg, &msg_info, NULL, NULL);
     } while (false);
 
-    if (error != OT_ERROR_NONE) {
+    if (error != OT_ERROR_NONE)
+    {
         printk("CoAP send failed: %d\n", error);
-        if (msg) otMessageFree(msg);
-    } else {
+        if (msg)
+            otMessageFree(msg);
+    }
+    else
+    {
         printk("CoAP payload sent.\n");
     }
 }
@@ -79,9 +92,10 @@ const struct device *sps30 = DEVICE_DT_GET_ANY(sensirion_sps30);
 
 int main(void)
 {
-    coap_init();  // COAP INIT CALL
+    coap_init(); // COAP INIT CALL
 
-    if (!device_is_ready(scd41) || !device_is_ready(ccs811) || !device_is_ready(sps30)) {
+    if (!device_is_ready(scd41) || !device_is_ready(ccs811) || !device_is_ready(sps30))
+    {
         printk("Sensor(s) not ready\n");
         return 1;
     }
@@ -97,7 +111,8 @@ int main(void)
         sensor_channel_get(scd41, SENSOR_CHAN_AMBIENT_TEMP, &temo);
         sensor_channel_get(scd41, SENSOR_CHAN_HUMIDITY, &humi);
 
-        if (sensor_sample_fetch(ccs811) == 0) {
+        if (sensor_sample_fetch(ccs811) == 0)
+        {
             sensor_channel_get(ccs811, SENSOR_CHAN_CO2, &eco2);
             sensor_channel_get(ccs811, SENSOR_CHAN_VOC, &tvoc);
         }
@@ -115,56 +130,15 @@ int main(void)
         sensor_channel_get(sps30, SENSOR_CHAN_PM_TYPICAL_PARTICLE_SIZE, &typical_particle_size);
 
         snprintf(json_buf, sizeof(json_buf),
-            "{\n"
-            "  \"co2\": \"%d.%06d\",\n"
-            "  \"co2_unit\": \"ppm\",\n"
-            "  \"temperature\": \"%d.%06d\",\n"
-            "  \"temperature_unit\": \"C\",\n"
-            "  \"humidity\": \"%d.%06d\",\n"
-            "  \"humidity_unit\": \"%%\",\n"
-            "  \"eco2\": \"%d.%06d\",\n"
-            "  \"eco2_unit\": \"ppm\",\n"
-            "  \"tvoc\": \"%d.%06d\",\n"
-            "  \"tvoc_unit\": \"ppb\",\n"
-            "  \"pm_1_0\": \"%d.%06d\",\n"
-            "  \"pm_1_0_unit\": \"mg/m^3\",\n"
-            "  \"pm_2_5\": \"%d.%06d\",\n"
-            "  \"pm_2_5_unit\": \"mg/m^3\",\n"
-            "  \"pm_10_0\": \"%d.%06d\",\n"
-            "  \"pm_10_0_unit\": \"mg/m^3\",\n"
-            "  \"pm_4_0\": \"%d.%06d\",\n"
-            "  \"pm_4_0_unit\": \"mg/m^3\",\n"
-            "  \"pm_0_5\": \"%d.%06d\",\n"
-            "  \"pm_0_5_unit\": \"mg/m^3\",\n"
-            "  \"pm_1_0_nc\": \"%d.%06d\",\n"
-            "  \"pm_1_0_nc_unit\": \"/cm^3\",\n"
-            "  \"pm_2_5_nc\": \"%d.%06d\",\n"
-            "  \"pm_2_5_nc_unit\": \"/cm^3\",\n"
-            "  \"pm_4_0_nc\": \"%d.%06d\",\n"
-            "  \"pm_4_0_nc_unit\": \"/cm^3\",\n"
-            "  \"pm_10_0_nc\": \"%d.%06d\",\n"
-            "  \"pm_10_0_nc_unit\": \"/cm^3\",\n"
-            "  \"typical_particle_size\": \"%d.%06d\",\n"
-            "  \"typical_particle_size_unit\": \"µm\"\n"
-            "}\n",
-            co2.val1, co2.val2,
-            temo.val1, temo.val2,
-            humi.val1, humi.val2,
-            eco2.val1, eco2.val2,
-            tvoc.val1, tvoc.val2,
-            pm_1p0.val1, pm_1p0.val2,
-            pm_2p5.val1, pm_2p5.val2,
-            pm_10p0.val1, pm_10p0.val2,
-            pm_4p0.val1, pm_4p0.val2,
-            pm_0p5.val1, pm_0p5.val2,
-            pm_1p0_nc.val1, pm_1p0_nc.val2,
-            pm_2p5_nc.val1, pm_2p5_nc.val2,
-            pm_4p0_nc.val1, pm_4p0_nc.val2,
-            pm_10p0_nc.val1, pm_10p0_nc.val2,
-            typical_particle_size.val1, typical_particle_size.val2
-        );
+                 "<DATA>%d.%06d,%d.%06d,%d.%06d,%d.%06d,%d.%06d,%d.%06d</DATA>",
+                 co2.val1, co2.val2,
+                 temo.val1, temo.val2,
+                 humi.val1, humi.val2,
+                 tvoc.val1, tvoc.val2,
+                 pm_2p5.val1, pm_2p5.val2,
+                 pm_10p0.val1, pm_10p0.val2);
 
-        printk("%s", json_buf);
+        printk("%s\n", json_buf);
 
         // COAP BEGIN
         coap_send_data_request(json_buf);

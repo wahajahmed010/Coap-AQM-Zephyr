@@ -1,0 +1,2 @@
+rsource "scd4x/Kconfig"
+rsource "sps30/Kconfig"

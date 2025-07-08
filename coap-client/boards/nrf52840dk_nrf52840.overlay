@@ -1,0 +1,26 @@
+&i2c0 {
+    status = "okay";
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+
+    sps30@69 {
+        compatible = "sensirion,sps30";
+        reg = <0x69>;
+        status = "okay";
+        model = "sps30";
+    };
+
+    scd41@62 {
+        compatible = "sensirion,scd41";
+        reg = <0x62>;
+        label = "SCD41";
+        mode = <0>;
+    };
+
+    ccs811: ccs811@5a {
+        compatible = "ams,ccs811";
+        reg = <0x5a>;
+        irq-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+        wake-gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+        reset-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+    };
+};

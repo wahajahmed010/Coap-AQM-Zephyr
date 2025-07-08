@@ -14,7 +14,7 @@ LOG_MODULE_REGISTER(coap_srv, CONFIG_LOG_DEFAULT_LEVEL);
 #include <openthread/ip6.h>
 #include <openthread/coap.h>
 
-#define TEXT_BUF_SZ 64
+#define TEXT_BUF_SZ 256
 static char text_buf[TEXT_BUF_SZ];
 static size_t text_len;
 
@@ -73,7 +73,8 @@ static void storedata_cb(void *context, otMessage *msg, const otMessageInfo *msg
 	text_len = otMessageRead(msg, otMessageGetOffset(msg), text_buf, TEXT_BUF_SZ - 1);
 	text_buf[text_len] = '\0';
 
-	LOG_INF("PUT /storedata : \"%s\"", text_buf);
+	// LOG_INF("PUT /storedata : \"%s\"", text_buf);
+	printk("Received: %s\n", text_buf);
 
 	if (otCoapMessageGetType(msg) == OT_COAP_TYPE_CONFIRMABLE) {
 		storedata_reply(msg, msg_info);
